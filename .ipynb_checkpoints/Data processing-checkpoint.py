@@ -8,6 +8,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sklearn
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import streamlit as st
+from sklearn.preprocessing import MinMaxScaler
 
 raw_df = pd.read_csv("songs_data.csv", encoding = "UTF-8")
 raw_df
@@ -129,7 +133,7 @@ raw_df[['duration_ms', 'duration_min']].head()
 # In[12]:
 
 
-from sklearn.preprocessing import MinMaxScaler
+
 
 # Define the scaler
 scaler = MinMaxScaler()
@@ -164,9 +168,6 @@ print(f"Testing set shape: {X_test.shape}, {y_test.shape}")
 # In[16]:
 
 
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import streamlit as st
 
 # Function to recommend songs based on user preferences
 def recommend_songs(user_preferences, data, top_n=5):
@@ -180,7 +181,7 @@ def recommend_songs(user_preferences, data, top_n=5):
     return raw_df.iloc[top_indices][['track_name', 'track_artist', 'mood','track_href']]
 
 # Recommend songs
-recommendations = recommend_songs(user_preferences, X_train.values, top_n=5)
+
 
 # Streamlit app starts here
 st.title("Spotify Music Recommendation System")
@@ -206,7 +207,9 @@ st.subheader("Recommended Songs")
 for index, row in recommendations.iterrows():
     st.write(f"🎵 **{row['track_name']}** by {row['track_artist']} ({row['mood']})")
     st.write(f"[Listen on Spotify]({row['track_href']})")
-
+    
+if __name__ == "__main__":
+    import streamlit as st
 
 # In[ ]:
 
