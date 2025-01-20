@@ -8,12 +8,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sklearn
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import streamlit as st
-from sklearn.preprocessing import MinMaxScaler
 
-raw_df = pd.read_csv("songs_data.csv", encoding = "UTF-8")
+raw_df = pd.read_csv("high_popularity_spotify_data.csv", encoding = "UTF-8")
 raw_df
 
 
@@ -102,7 +103,6 @@ def mood_category(row):
 # Apply the function to the dataset
 raw_df['mood'] = raw_df.apply(mood_category, axis=1)
 
-# Check the first few rows of the updated dataset
 raw_df[['valence', 'energy', 'mood']].head()
 
 
@@ -118,7 +118,6 @@ raw_df["mood"].value_counts()
 # Create a feature that combines acousticness and loudness
 raw_df['acoustic_loudness'] = raw_df['acousticness'] * (-raw_df['loudness'])
 
-# Check the first few rows of the new feature
 raw_df[['acousticness', 'loudness', 'acoustic_loudness']].head()
 
 
@@ -133,8 +132,6 @@ raw_df[['duration_ms', 'duration_min']].head()
 # In[12]:
 
 
-
-
 # Define the scaler
 scaler = MinMaxScaler()
 
@@ -144,14 +141,11 @@ features_to_normalize = ['tempo', 'energy', 'danceability']
 # Apply scaling
 raw_df[features_to_normalize] = scaler.fit_transform(raw_df[features_to_normalize])
 
-# Check the first few rows of normalized features
 raw_df[features_to_normalize].head()
 
 
 # In[13]:
 
-
-from sklearn.model_selection import train_test_split
 
 # Define the features and target
 X = raw_df[['valence', 'energy', 'danceability', 'tempo', 'acoustic_loudness']]  # Feature columns
@@ -160,13 +154,12 @@ y = raw_df['mood']  # Target column
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-# Check the shapes of the splits
+
 print(f"Training set shape: {X_train.shape}, {y_train.shape}")
 print(f"Testing set shape: {X_test.shape}, {y_test.shape}")
 
 
 # In[16]:
-
 
 
 # Function to recommend songs based on user preferences
@@ -181,6 +174,7 @@ def recommend_songs(user_preferences, data, top_n=5):
     return raw_df.iloc[top_indices][['track_name', 'track_artist', 'mood','track_href']]
 
 # Recommend songs
+recommendations = recommend_songs(user_preferences, X_train.values, top_n=5)
 
 
 # Streamlit app starts here
@@ -207,7 +201,8 @@ st.subheader("Recommended Songs")
 for index, row in recommendations.iterrows():
     st.write(f"🎵 **{row['track_name']}** by {row['track_artist']} ({row['mood']})")
     st.write(f"[Listen on Spotify]({row['track_href']})")
-    
+if __name__ == "__main__":
+    import streamlit as st
 
 
 # In[ ]:
